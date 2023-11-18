@@ -1,53 +1,75 @@
-# Power Outage Trends
+# An Investigation on The Degree of Extremeness Severe Weather Affects Power Outages
 Author: Han Hoang
 
 ## Project Overview
 This data science project explores the caused-by-severe-weather power outage trends, answering curiorsity of the time in the year when power outages that are caused by severe weather are more likely to occur. This project is completed as an assignment for DSC 80 at UCSD.
 
 ## Background Information and Introduction
-The dataset is sourced from Purdue University's Laboratory for Advancing Sustainable Critical Infrastructure. It includes data of the major outages occurred in different states of the United States of America like geospatial data of power outages, causes of power outages and other power outages characteristics, land-use characteristics, power consumption level as well as economic conditions of the states included in the dataset. This report puts a focus on analyzing the trends in the occurring time of the power outages that happened due to severe weather causes to draw a hopefully convincing conclusion to the question of whether number of power outages due to severe weather during the summer is larger than the number of power outages due to severe weather during the winter. The conclusion to this question can provide valuable insights to compare the degree of extreme bad whether effect has on power outages in summer versus winter.
+The dataset is sourced from [Purdue University's Laboratory for Advancing Sustainable Critical Infrastructure](https://engineering.purdue.edu/LASCI/research-data/outages). It includes data of the major outages occurred in different states of the United States of America like geospatial data of power outages, causes of power outages and other power outages characteristics, land-use characteristics, power consumption level as well as economic conditions of the states included in the dataset. This report puts a focus on analyzing the trends in the occurring time of the power outages that happened due to severe weather causes to draw a hopefully convincing conclusion to the question of whether number of power outages due to severe weather during the summer is larger than the number of power outages due to severe weather during the winter. The conclusion to this question can provide valuable insights to compare the degree of extreme bad whether effect has on power outages in summer versus winter.
 
-The dataset has 1534 observations and 53 variables, but the relevant variables to answer our interested question in the dataset are OUTAGE.START (the full timestamp at which the outage occured), MONTH (the month in which the outage occured), and YEAR (the year in which the outage occured).
+The original dataset has 1534 observations and 53 variables, of which there are 3 we are interested in for our analysis: 
+
+| Column              | Description                                       |
+|---------------------|---------------------------------------------------|
+| `OUTAGE.START.DATE` | The date of which the power outages occurred      |
+| `OUTAGE.START.TIME` | The timestamp of which the power outages occurred |
+| `MONTH`             | The month in which the power outages occurred     |
+| `YEAR`              | The year in which the power outages occurred      |
 
 ## Cleaning and EDA
 
 ### Data Cleaning
-The analysis is done on a dataframe which is made by having Pandas directly read in an excel file downloaded straight from Purdue's website. The read-in dataframe still had junky row and column that needs to be removed, index that needed to be reset, essentially reformatting the dataset into a tidy-data format that is easy to work with. The outage start and restoration time also got combined with their timestamp to a singular, more comprehensive time unit for each.
+The analysis is done on a dataframe which is made by having Pandas directly read in an excel file downloaded straight from Purdue's website. The read-in dataframe still had junky row and column that needs to be removed, index that needed to be reset, essentially reformatting the dataset into a tidy-data format that is easy to work with. The outage start and restoration time also got combined with their timestamp to a singular, more comprehensive time unit for each, and got renamed `OUTAGE.START` and `OUTAGE.RESTORATION` respectively.
 
-After the dataset is ready to use, the dataframe will still need to be subset to contain only the power outages caused by severe weather that we are interested in. The season column is also engineered using the MONTH column data and a dictionary of seasonal-monthly mapping.
+After the dataset is ready to use, the dataframe is subsetted to contain only the power outages caused by severe weather that we are interested in. The season column is also created from the extraction of the month in the data and a dictionary of seasonal-monthly mapping. 
 
-The first 5 rows of the dataframe is as below:
-<iframe src="assets/severe_weather_outages.html" width=800 height=600 frameBorder=0></iframe>
+Finally, only the following relevant columns are kept in the dataset and others are dropped for a more concise dataframe: `OUTAGE.START`, `YEAR`, `MONTH`, and `SEASON`.
+
+These cleanings will result in a dataframe whose head() (a.k.a the first 5 rows) is shown below:
+
+| OUTAGE.START        | SEASON   |   MONTH |   YEAR |
+|:--------------------|:---------|--------:|-------:|
+| 2011-07-01 17:00:00 | Summer   |       7 |   2011 |
+| 2010-10-26 20:00:00 | Fall     |      10 |   2010 |
+| 2012-06-19 04:30:00 | Summer   |       6 |   2012 |
+| 2015-07-18 02:00:00 | Summer   |       7 |   2015 |
+| 2010-11-13 15:00:00 | Fall     |      11 |   2010 |
 
 ### Univariate Analysis
-This bar plot shows the trend of outages by month
+This bar plot shows the trend of outages by month. We can see that power outages happen the least in March, following by November, and the highest power outage rates are in June and July, which makes sense since the weather in March and November tends to be the least severe throughout the year, while it starts to getting hot in June and everyone has an AC on with occassional wildfire happens here and there due to the hot weather.
 
 *Fun fact:* You can expect about 1.3 outages per month on average according to this data!
 
 <iframe src="assets/outages_by_month.html" width=800 height=600 frameBorder=0></iframe>
 
 ### Bivariate Analysis
-This line plot shows another perspective of time trend of outages, but by year!
+We can spot from this line plot the Great Blackout of 2011 (a US Southeast blackout that largely affects California). Interestingly, we can't spot a peak when there were a much bigger blackout that happens during 2003, the Northeast blackout of 2003, but more data seems to be collected since that year with the increasing number of outages the following decade probably for monitoring and quality control purposes.
 
 <iframe src="assets/outages_by_year.html" width=800 height=600 frameBorder=0></iframe>
 
 ### Interesting Aggregates
-This horizontal bar plot shows the trend of outages by season. You can tell summer power outages is pretty bad!
+This horizontal bar plot shows the trend of outages by season. You can tell summer power outages caused by severe weather is pretty common compared to the other season, including winter, which is expected!
 
 <iframe src="assets/outages_by_season.html" width=800 height=600 frameBorder=0></iframe>
 
 ## Assessment of Missingness
 
+### NMAR analysis
+In our dataset, it is suspected that **OUTAGE.RESTORATION is NMAR** (not missing at random). When a column is said to be NMAR, its missingness is dependent on itself. In other words, the nature of any data goes missing in that column will cause the missingness itself to occur. OUTAGE.RESTORATION is NMAR because if the power outage has yet to end, then naturally there is no timestamp recorded for the restoration time of that power outage.
+
+### Missingness Dependency
+
 ## Hypothesis Testing
 
-- Null hypothesis: the number of outages due to severe weather during the summer is the same as the number of outages due to severe weather during the winter
-- Alternative hypothesis: the number of outages due to severe weather during the summer is larger than the number of outages due to severe weather during the winter
-- Test statistic: number of outages during the summer - number of outages during the winter
-- Significance level = 0.05
+To answer our question, we would conduct a hypothesis test and set the *null hypothesis* to be that **the number of outages due to severe weather during the summer is the same as the number of outages due to severe weather during the winter**, and **the number of outages due to severe weather during the summer is larger than the number of outages due to severe weather during the winter** as our *alternative hypothesis*. The *test statistic* that we will use in our hypothesis test is decided to be **the difference in the number of outages due to severe weather between summer and winter** (i.e. number of outages due to severe weather during the summer - number of outages due to severe weather during the winter) since we want to see if the difference between the number of outages due to severe weather during the summer and winter lies beyond the range of the expected difference. The significance level of our hypothesis test is conventionally **0.05**.
 
 
 <iframe src="assets/hypothesis_test.html" width=800 height=600 frameBorder=0></iframe>
 
-Resulting p-value: 0.0
+As we can see from the histogram, the p-value is 0.0, which is below our cut-off of 0.05.
 
-**Conclusion**: Since the p-value cutoff is 0.05, the null hypothesis is rejected and we can conclude that the number of outages due to severe weather during the summer is larger than the number of outages due to severe weather during the winter not due to chance alone
+**Conclusion**: Since the p-value cutoff is 0.05, the null hypothesis is rejected, and we can draw a conclusion to our question that the number of outages due to severe weather during the summer is larger than the number of outages due to severe weather during the winter not due to chance alone.
+
+### Discussion
+
+Even though we cannot say for sure the alternative hypothesis is true, there are probably some applicable reasons that may explain why the number of outages due to severe weather during the summer is larger than the number of outages due to severe weather during the winter, like the bad weather in the summer is more capable of shutting off or damaging the infrastructure that supports and provides the power in the state. This issue, however, is beyond the scope of this report and remains a further discussion to explore in the future!
