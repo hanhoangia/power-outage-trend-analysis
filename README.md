@@ -25,17 +25,17 @@ The analysis is done on a dataframe which is made by having Pandas directly read
 
 After the dataset is ready to use, the dataframe is subsetted to contain only the power outages caused by severe weather that we are interested in. The season column is also created from the extraction of the month in the data and a dictionary of seasonal-monthly mapping. 
 
-Finally, only the following relevant columns are kept in the dataset and others are dropped for a more concise dataframe: `OUTAGE.START`, `YEAR`, `MONTH`, and `SEASON`.
+Finally, only the following relevant columns for analysis are kept in the dataset and others are dropped for a more concise dataframe: `OUTAGE.START`, `YEAR`, `MONTH`, `SEASON`, `CUSTOMERS.AFFECTED`, and `HURRICANE.NAMES`.
 
 These cleanings will result in a dataframe whose head() (a.k.a the first 5 rows) is shown below:
 
-| OUTAGE.START        | SEASON   |   MONTH |   YEAR |
-|:--------------------|:---------|--------:|-------:|
-| 2011-07-01 17:00:00 | Summer   |       7 |   2011 |
-| 2010-10-26 20:00:00 | Fall     |      10 |   2010 |
-| 2012-06-19 04:30:00 | Summer   |       6 |   2012 |
-| 2015-07-18 02:00:00 | Summer   |       7 |   2015 |
-| 2010-11-13 15:00:00 | Fall     |      11 |   2010 |
+| OUTAGE.START        | SEASON   | MONTH   |   YEAR |   CUSTOMERS.AFFECTED |   HURRICANE.NAMES |
+|:--------------------|:---------|:--------|-------:|---------------------:|------------------:|
+| 2011-05-29 18:30:00 | Spring   | May     |   2011 |               113000 |               nan |
+| 2005-09-22 11:00:00 | Fall     | Sep     |   2005 |                53000 |               nan |
+| 2003-11-12 17:00:00 | Fall     | Nov     |   2003 |               245000 |               nan |
+| 2016-02-19 22:00:00 | Winter   | Feb     |   2016 |               145314 |               nan |
+| 2007-07-19 15:00:00 | Summer   | Jul     |   2007 |                60000 |               nan |
 
 ### Univariate Analysis
 We first want to see the trend of outages by month. From this histogram, power outages happen the least in March, following by November, and the highest power outage rates are in June and July, which makes sense since the weather in March and November tends to be the least severe throughout the year, while it starts to getting hot in June and everyone has an AC on with occassional wildfire happens here and there due to the hot weather.
