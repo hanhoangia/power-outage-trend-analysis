@@ -5,16 +5,18 @@ Author: Han Hoang
 This data science project explores the caused-by-severe-weather power outage trends, answering curiorsity of the time in the year when power outages that are caused by severe weather are more likely to occur. This project is completed as an assignment for DSC 80 at UCSD.
 
 ## Background Information and Introduction
-The dataset is sourced from [Purdue University's Laboratory for Advancing Sustainable Critical Infrastructure](https://engineering.purdue.edu/LASCI/research-data/outages). It includes data of the major outages occurred in different states of the United States of America like geospatial data of power outages, causes of power outages and other power outages characteristics, land-use characteristics, power consumption level as well as economic conditions of the states included in the dataset. This report puts a focus on analyzing the trends in the occurring time of the power outages that happened due to severe weather causes to draw a hopefully convincing conclusion to the question of whether number of power outages due to severe weather during the summer is larger than the number of power outages due to severe weather during the winter. The conclusion to this question can provide valuable insights to compare the degree of extreme bad whether effect has on power outages in summer versus winter.
+The dataset is sourced from [Purdue University's Laboratory for Advancing Sustainable Critical Infrastructure](https://engineering.purdue.edu/LASCI/research-data/outages). It includes data of the major outages occurred in different states of the United States of America like geospatial data of power outages, causes of power outages and other power outages characteristics, land-use characteristics, power consumption level as well as economic conditions of the states included in the dataset. This report puts a focus on analyzing the trends in the occurring time of the power outages that happened due to severe weather causes to draw a hopefully convincing conclusion to the question of **whether number of power outages due to severe weather during the summer is larger than the number of power outages due to severe weather during the winter**. The conclusion to this question can provide valuable insights to compare the degree of extreme bad whether effect has on power outages in summer versus winter.
 
 The original dataset has 1534 observations and 53 variables, of which there are 3 we are interested in for our analysis: 
 
-| Column              | Description                                       |
-|---------------------|---------------------------------------------------|
-| `OUTAGE.START.DATE` | The date of which the power outages occurred      |
-| `OUTAGE.START.TIME` | The timestamp of which the power outages occurred |
-| `MONTH`             | The month in which the power outages occurred     |
-| `YEAR`              | The year in which the power outages occurred      |
+| Column               | Description                                                                                                                                    |
+|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `OUTAGE.START.DATE`  | The date of which the power outages occurred                                                                                                   |
+| `OUTAGE.START.TIME`  | The timestamp of which the power outages occurred                                                                                              |
+| `MONTH`              | The month in which the power outages occurred                                                                                                  |
+| `YEAR`               | The year in which the power outages occurred                                                                                                   |
+| `CUSTOMERS.AFFECTED` | The count of customers got affected by the power outages                                                                                       |
+| `HURRICANE.NAMES`    | The name of the hurricanes associated with the power outages due to severe weather (this column is needed for our missingness dependency test) |
 
 ## Cleaning and EDA
 
@@ -36,14 +38,14 @@ These cleanings will result in a dataframe whose head() (a.k.a the first 5 rows)
 | 2010-11-13 15:00:00 | Fall     |      11 |   2010 |
 
 ### Univariate Analysis
-This bar plot shows the trend of outages by month. We can see that power outages happen the least in March, following by November, and the highest power outage rates are in June and July, which makes sense since the weather in March and November tends to be the least severe throughout the year, while it starts to getting hot in June and everyone has an AC on with occassional wildfire happens here and there due to the hot weather.
+We first want to see the trend of outages by month. From this histogram, power outages happen the least in March, following by November, and the highest power outage rates are in June and July, which makes sense since the weather in March and November tends to be the least severe throughout the year, while it starts to getting hot in June and everyone has an AC on with occassional wildfire happens here and there due to the hot weather.
 
 *Fun fact:* You can expect about 1.3 outages per month on average according to this data!
 
 <iframe src="assets/outages_by_month.html" width=800 height=600 frameBorder=0></iframe>
 
 ### Bivariate Analysis
-We can spot from this line plot the Great Blackout of 2011 (a US Southeast blackout that largely affects California). Interestingly, we can't spot a peak when there were a much bigger blackout that happens during 2003, the Northeast blackout of 2003, but more data seems to be collected since that year with the increasing number of outages the following decade probably for monitoring and quality control purposes.
+If we then do a line plot to show the trend of outages by year, we can spot from the plot the Great Blackout of 2011 (a US Southeast blackout that largely affected California). Interestingly, we can't spot a peak when there were a much bigger blackout that happens during 2003, the Northeast blackout of 2003, but more data seems to be collected since that year with the increasing number of outages the following decade probably for monitoring and quality control purposes.
 
 <iframe src="assets/outages_by_year.html" width=800 height=600 frameBorder=0></iframe>
 
@@ -58,6 +60,44 @@ This horizontal bar plot shows the trend of outages by season. You can tell summ
 In our dataset, it is suspected that **OUTAGE.RESTORATION is NMAR** (not missing at random). When a column is said to be NMAR, its missingness is dependent on itself. In other words, the nature of any data goes missing in that column will cause the missingness itself to occur. OUTAGE.RESTORATION is NMAR because if the power outage has yet to end, then naturally there is no timestamp recorded for the restoration time of that power outage.
 
 ### Missingness Dependency
+
+**CUSTOMERS.AFFECTED and SEASON**
+
+- Null Hypothesis: The missingness of CUSTOMERS.AFFECTED does not depend on SEASON
+- Alternative Hypothesis: The missingess of CUSTOMERS.AFFECTED depends on SEASON
+
+Our central question investigates the effect seasonal weather has on power outages, and it would make sense to evaluate the missingness dependency of CUSTOMERS.AFFECTED on SEASON. If the missingness of CUSTOMERS.AFFECTED depends on SEASON, then the missing values of CUSTOMERS.AFFECTED is likely to correspond with a certain SEASON in terms of the power outages caused by severe weather.
+
+<iframe src="assets/missingness_dependency_yes_stats.html" width=800 height=600 frameBorder=0></iframe>
+
+According to the above graph, the missingness of CUSTOMERS.AFFECTED appears to be correlated with the more extreme weather seasons like summer and winter. It may be the case that the power outages in those seasons happen too frequent to get all the reports back for every outages.
+
+Let's conduct a permutation test and see how this goes.
+
+<iframe src="assets/missingness_dependency_yes_dist.html" width=800 height=600 frameBorder=0></iframe>
+
+With our significance level of 0.05, we reject the null with our permutation test result and conclude that **the missingness of CUSTOMERS.AFFECTED depends on SEASON** at a p-value of *0.03*.
+
+-----
+
+**CUSTOMERS.AFFECTED and HURRICANE.NAMES**
+
+- Null Hypothesis: The missingness of CUSTOMERS.AFFECTED does not depend on HURRICANE.NAMES
+- Alternative Hypothesis: The missingness of CUSTOMERS.AFFECTED depends on HURRICANE.NAMES
+
+To test the integrity of our missingness test, we are going to conduct another test to see if the missingness of CUSTOMERS.AFFECTED does not depend on HURRICANE.NAMES as what we expected. But let's check out the distribution of CUSTOMERS.AFFECTED missing values across HURRICANE.NAMES first.
+
+<iframe src="assets/missingness_dependency_no_stats.html" width=800 height=600 frameBorder=0></iframe>
+
+We can see that all of the missing values of CUSTOMERS.AFFECTED corresponds with the power outages caused by a hurricane named Sandy; however, the missingness of CUSTOMERS.AFFECTED does not seem to have a relationship with the property of the hurricane names themselves as the missing values does not spread across different hurricane names and forms a comprehensible pattern in the hurricane names CUSTOMERS.AFFECTED gone missing. This makes sense since how hurricanes are named shouldn't have anything to do with how extreme the weather is, and thus, how bad the corresponding power outages are.
+
+Let's conduct a permutation test to see if we are right!
+
+<iframe src="assets/missingness_dependency_no_dist.html" width=800 height=600 frameBorder=0></iframe>
+
+With our significance level of 0.05, we fail to reject the null with our permutation test result, and indeed, **the missingness of CUSTOMERS.AFFECTED does not depend on HURRICANE.NAMES** at a p-value of *0.18*.
+
+**Conclusion**: While the missingness of CUSTOMERS.AFFECTED does not depend on HURRICANE.NAMES, it depends on SEASON; hence, we say that **CUSTOMERS.AFFECTED is MAR** (missing at random).
 
 ## Hypothesis Testing
 
