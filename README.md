@@ -108,7 +108,7 @@ To answer our question, we would conduct a hypothesis test and set the *null hyp
 
 As we can see from the histogram, the p-value is 0.0, which is below our cut-off of 0.05.
 
-**Conclusion**: Since the p-value cutoff is 0.05, the null hypothesis is rejected, and we can draw a conclusion to our question that the number of outages due to severe weather during the summer is larger than the number of outages due to severe weather during the winter not due to chance alone.
+**Conclusion**: Since the p-value cutoff is 0.05, the **null hypothesis is rejected**, and we can draw a conclusion to our question that **the number of outages due to severe weather during the summer is larger than the number of outages due to severe weather during the winter not due to chance alone.**
 
 ### Discussion
 
